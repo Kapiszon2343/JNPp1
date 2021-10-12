@@ -1,0 +1,6 @@
+AND 5 4 3 2 1
+OR 1 2 3
+OR  2 4 6
+NAND 1 8 9
+NOT 2 1
+XOR     3   4       8
