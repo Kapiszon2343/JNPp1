@@ -26,6 +26,15 @@ using signal_t = int32_t;
 using gate = pair< void (*)(pair<signal_t, vector<signal_t> >, unordered_map<signal_t, bool>), pair<signal_t, vector<signal_t> > >;
 
 namespace  {
+	void AND_f(pair<signal_t, vector<signal_t> > out_in, 
+		unordered_map<signal_t, bool> states) {
+		bool output_state = true;
+		for(auto in_id : out_in.second) {
+			output_state &= states[in_id];
+		}
+		states[out_in.first] = output_state;
+	}
+	
 	void read_input(vector<gate> const *gates) {
 
 	    regex not_g("^\\s*NOT(\\s+\\d{1,9}){2}\\s*$");
