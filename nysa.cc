@@ -1,6 +1,12 @@
 #include<unordered_map>
 #include<vector>
 #include<queue>
+#include<vector>
+#include<string>
+#include<regex>
+#include<regex.h>
+#include<istream>
+#include<iostream>
 
 using std::queue;
 using std::unordered_map;
@@ -9,12 +15,15 @@ using std::vector;
 using std::string;
 using std::regex;
 using std::regex_match;
+using std::istringstream;
+using std::cin;
+using std::cout;
+using std::endl;
+using std::cerr;
+
 
 using signal_t = int32_t;
-using gate = pair<
-        void (*)(pair<signal_t, vector<signal_t> >, unordered_map<signal_t, bool>),
-        pair<signal_t, vector<signal_t> >
-                >;
+using gate = pair< void (*)(pair<signal_t, vector<signal_t> >, unordered_map<signal_t, bool>), pair<signal_t, vector<signal_t> > >;
 
 namespace  {
 	void AND_f(pair<signal_t, vector<signal_t> > out_in, 
@@ -28,14 +37,14 @@ namespace  {
 	
 	void read_input(vector<gate> const *gates) {
 
-	    regex not_g = "^\\s*NOT(\\s+\\d{1,9}){2}\\s*$";
-	    regex xor_g = "^\\s*XOR(\\s+\\d{1,9}){3}\\s*$";
-        regex rest_g = "^\\s*(AND|NAND|OR|NOR)(\\s+\\d{1,9}){3,}\\s*$";
+	    regex not_g("^\\s*NOT(\\s+\\d{1,9}){2}\\s*$");
+	    regex xor_g("^\\s*XOR(\\s+\\d{1,9}){3}\\s*$");
+        regex rest_g("^\\s*(AND|NAND|OR|NOR)(\\s+\\d{1,9}){3,}\\s*$");
 
 	    bool reading_input = true;
 	    int no_line = 1;
 
-        while(reading_input) {
+	    while(reading_input) {
             string input;
             getline(cin, input);
 
@@ -44,22 +53,24 @@ namespace  {
                 //gdy nie ma nic na wejściu
             }
             else {
-                if(regex_match(s, not_g)) {
-                    //obsłuż not
+                istringstream iss(input);
+                int data;
+                if(regex_match(input, not_g)) {
+                    iss >> data;
+                    //obsluz not
                 }
-                else if(regex_match(s, xor_g)) {
+                else if(regex_match(input, xor_g)) {
                     //obsłuż xor
                 }
-                else if(regex_mach(s, rest_g)) {
+                else if(regex_match(input, rest_g)) {
                     //reszta
                 }
                 else{
-                    cerr << "Error in line " << no_line << ": " << input;
+                    cerr << "Error in line " << no_line << ": " << input << endl;
                 }
             }
             no_line++;
         }
-
 	}
 	
 	bool check_for_sequential_logic(vector<gate> const *gates) {
