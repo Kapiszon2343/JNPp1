@@ -218,6 +218,9 @@ namespace  {
 			}
 		}
 		
+		sort(only_inputs.begin(), only_inputs.end());
+		sort(only_outputs.begin(), only_outputs.end());
+		
 		states_map states;
 		output_step(
 			gates,
