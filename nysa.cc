@@ -7,6 +7,7 @@
 #include<regex>
 #include<istream>
 #include<iostream>
+#include<assert.h>
 
 using std::queue;
 using std::unordered_map;
@@ -35,12 +36,65 @@ using gate = pair<
 namespace  {
 	void AND_f(pair<signal_t, vector<signal_t> > out_in, 
 		states_map *states) {
+	    assert(out_in.second.size() >= 2);
 		bool output_state = true;
 		for(auto in_id : out_in.second) {
 			output_state &= (*states)[in_id];
 		}
 		(*states)[out_in.first] = output_state;
 	}
+
+    void NAND_f(pair<signal_t, vector<signal_t> > out_in,
+               states_map *states) {
+        assert(out_in.second.size() >= 2);
+        bool output_state = true;
+        for(auto in_id : out_in.second) {
+            output_state &= (*states)[in_id];
+        }
+        (*states)[out_in.first] = !output_state;
+    }
+
+    void OR_f(pair<signal_t, vector<signal_t> > out_in,
+                states_map *states) {
+        assert(out_in.second.size() >= 2);
+        bool output_state = true;
+        for(auto in_id : out_in.second) {
+            output_state |= (*states)[in_id];
+        }
+        (*states)[out_in.first] = output_state;
+    }
+
+    void XOR_f(pair<signal_t, vector<signal_t> > out_in,
+                states_map *states) {
+        assert(out_in.second.size() == 2);
+        bool output_state;
+        if((*states)[out_in.second.at(0)] != (*states)[out_in.second.at(1)])
+            output_state = true;
+        else
+            output_state = false;
+
+        (*states)[out_in.first] = output_state;
+    }
+
+    void NOT_f(pair<signal_t, vector<signal_t> > out_in,
+                states_map *states) {
+        assert(out_in.second.size() == 1);
+        bool output_state = true;
+        for(auto in_id : out_in.second) {
+            output_state = !((*states)[in_id]);
+        }
+        (*states)[out_in.first] = output_state;
+    }
+
+    void NOR_f(pair<signal_t, vector<signal_t> > out_in,
+                states_map *states) {
+        assert(out_in.second.size() >= 2);
+        bool output_state = true;
+        for(auto in_id : out_in.second) {
+            output_state |= (*states)[in_id];
+        }
+        (*states)[out_in.first] = !output_state;
+    }
 	
 	void read_input(vector<gate> const *gates) {
 
@@ -69,16 +123,20 @@ namespace  {
                     regex_match(line, xor_g) ||
                     regex_match(line, rest_g)) {
 
+                auto gate_name_iter = std::sregex_iterator(line.begin(), line.end(), name_g);
+                std::smatch match = *gate_name_iter;
+                cout << match.str() << endl;
+
                 line = regex_replace(line, name_g, "");
                 istringstream iss(line);
                 while(iss >> data){
                     if(first) {
-                        if(output_set.find(data) != output_set.end()) {
+                        if(output_set.empty() || output_set.find(data) != output_set.end()) {
                             output_set.insert(data);
                         }
                         else {
                             cerr << "Error in line " << no_line << ": signal "
-                            << data << "is assigned to multiple outputs.";
+                            << data << " is assigned to multiple outputs.";
                             no_error = false;
                         }
                         signal_t out = data;
@@ -89,7 +147,6 @@ namespace  {
                     }
                 }
             }
-
             else{
                 cerr << "Error in line " << no_line << ": " << line << endl;
                 no_error = false;
