@@ -6,13 +6,51 @@ using std::queue;
 using std::unordered_map;
 using std::pair;
 using std::vector;
+using std::string;
+using std::regex;
+using std::regex_match;
 
 using signal_t = int32_t;
-using gate = pair< void (*)(pair<signal_t, vector<signal_t> >, unordered_map<signal_t, bool>), pair<signal_t, vector<signal_t> > >;
+using gate = pair<
+        void (*)(pair<signal_t, vector<signal_t> >, unordered_map<signal_t, bool>),
+        pair<signal_t, vector<signal_t> >
+                >;
 
 namespace  {
 	void read_input(vector<gate> const *gates) {
-		//TODO by Jakub Nowacki
+
+	    regex not_g = "^\\s*NOT(\\s+\\d{1,9}){2}\\s*$";
+	    regex xor_g = "^\\s*XOR(\\s+\\d{1,9}){3}\\s*$";
+        regex rest_g = "^\\s*(AND|NAND|OR|NOR)(\\s+\\d{1,9}){3,}\\s*$";
+
+	    bool reading_input = true;
+	    int no_line = 1;
+
+        while(reading_input) {
+            string input;
+            getline(cin, input);
+
+            if(input.size() == 0) {
+                cout << "Nic tu nie ma" << endl;
+                //gdy nie ma nic na wejściu
+            }
+            else {
+                if(regex_match(s, not_g)) {
+                    //obsłuż not
+                }
+                else if(regex_match(s, xor_g)) {
+                    //obsłuż xor
+                }
+                else if(regex_mach(s, rest_g)) {
+                    //reszta
+                }
+                else{
+                    cerr << "Error in line " << no_line << ": " << input;
+                }
+            }
+            no_line++;
+        }
+
 	}
 	
 	bool check_for_sequential_logic(vector<gate> const *gates) {
