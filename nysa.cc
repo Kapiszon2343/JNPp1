@@ -2,6 +2,7 @@
 #include<vector>
 #include<queue>
 #include<vector>
+#include<set>
 #include<string>
 #include<regex>
 #include<regex.h>
@@ -13,8 +14,10 @@ using std::unordered_map;
 using std::pair;
 using std::vector;
 using std::string;
+using std::set;
 using std::regex;
 using std::regex_match;
+using std::regex_replace;
 using std::istringstream;
 using std::cin;
 using std::cout;
@@ -39,37 +42,57 @@ namespace  {
 
 	    regex not_g("^\\s*NOT(\\s+\\d{1,9}){2}\\s*$");
 	    regex xor_g("^\\s*XOR(\\s+\\d{1,9}){3}\\s*$");
-        regex rest_g("^\\s*(AND|NAND|OR|NOR)(\\s+\\d{1,9}){3,}\\s*$");
+	    regex rest_g("^\\s*(AND|NAND|OR|NOR)(\\s+\\d{1,9}){3,}\\s*$");
+	    regex numbers("\\b(\\s+\\d+)+$");
+	    regex name_g("(AND|NAND|OR|XOR|NOT|NOR)");
 
-	    bool reading_input = true;
+	    bool reading_input = true, first = true, no_error = true;
 	    int no_line = 1;
+        set<signal_t> output_set;
 
 	    while(reading_input) {
-            string input;
-            getline(cin, input);
+            string line;
+            getline(cin, line);
+            vector<signal_t> in;
 
-            if(input.size() == 0) {
+            int data;
+
+            if(line.size() == 0) {
                 cout << "Nic tu nie ma" << endl;
                 //gdy nie ma nic na wejściu
             }
-            else {
-                istringstream iss(input);
-                int data;
-                if(regex_match(input, not_g)) {
-                    iss >> data;
-                    //obsluz not
-                }
-                else if(regex_match(input, xor_g)) {
-                    //obsłuż xor
-                }
-                else if(regex_match(input, rest_g)) {
-                    //reszta
-                }
-                else{
-                    cerr << "Error in line " << no_line << ": " << input << endl;
+            else if(regex_match(line, not_g) ||
+                    regex_match(line, xor_g) ||
+                    regex_match(line, rest_g)) {
+
+                line = regex_replace(line, name_g, "");
+                istringstream iss(line);
+                while(iss >> data){
+                    if(first) {
+                        if(output_set.find(data) != output_set.end()) {
+                            output_set.insert(data);
+                        }
+                        else {
+                            cerr << "Error in line " << no_line << ": signal "
+                            << data << "is assigned to multiple outputs.";
+                            no_error = false;
+                        }
+                        signal_t out = data;
+                        first = false;
+                    }
+                    else {
+                        in.push_back(data);
+                    }
                 }
             }
+
+            else{
+                cerr << "Error in line " << no_line << ": " << line << endl;
+                no_error = false;
+            }
+
             no_line++;
+            first = true;
         }
 	}
 	
