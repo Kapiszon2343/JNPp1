@@ -155,7 +155,7 @@ namespace  {
                         }
                         else {
                             cerr << "Error in line " << no_line << ": signal "
-                            << data << " is assigned to multiple outputs.";
+                            << data << " is assigned to multiple outputs." << endl;
                             no_error = false;
                         }
                         out = data;
