@@ -123,10 +123,9 @@ namespace  {
 
 	bool read_input(vector<gate> *gates) {
 
-	    regex not_g("^\\s*NOT(\\s+\\d{1,9}){2}\\s*$");
-	    regex xor_g("^\\s*XOR(\\s+\\d{1,9}){3}\\s*$");
-	    regex rest_g("^\\s*(AND|NAND|OR|NOR)(\\s+\\d{1,9}){3,}\\s*$");
-	    regex numbers("\\b(\\s+\\d+)+$");
+	    regex not_g("^\\s*NOT(\\s+[1-9]\\d{0,8}){2}\\s*$");
+	    regex xor_g("^\\s*XOR(\\s+[1-9]\\d{0,8}){3}\\s*$");
+	    regex rest_g("^\\s*(AND|NAND|OR|NOR)(\\s+[1-9]\\d{0,8}){3,}\\s*$");
 	    regex name_g("(AND|NAND|OR|XOR|NOT|NOR)");
 
 	    bool first = true, no_error = true;
