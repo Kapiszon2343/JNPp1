@@ -155,7 +155,7 @@ namespace  {
                         }
                         else {
                             cerr << "Error in line " << no_line << ": signal "
-                            << data << " is assigned to multiple outputs.";
+                            << data << " is assigned to multiple outputs." << endl;
                             no_error = false;
                         }
                         out = data;
@@ -224,16 +224,16 @@ namespace  {
 			}
 		}
 		
-		bool sequential_logic = false;
+		bool no_error = true;
 		
 		for(int nr_of_uncheked_inputs : waiting_for_inputs) {
 			if(nr_of_uncheked_inputs > 0) {
-				sequential_logic = true;
+				no_error = false;
 				break;
 			}
 		}
 		
-		return sequential_logic;
+		return no_error;
 	}
 	
 	void calculate_single_output(
@@ -267,9 +267,9 @@ namespace  {
 		}
 
 		for(signal_t output : *outputs) {
-			printf("%d", (*states)[output]);
+			cout << (*states)[output];
 		}
-		printf("\n");
+		cout << endl;
 	}
 	
 	void output_step(
@@ -346,13 +346,16 @@ namespace  {
 }
 
 int main() {
-    bool no_error = true;
-
 	vector<gate> gates;
 	
-	no_error = read_input(&gates);
+	if(!read_input(&gates)) {
+		return 0;
+	}
 	
-	check_for_sequential_logic(&gates);
+	if(!check_for_sequential_logic(&gates)) {
+		cerr << "Error: sequential logic analysis has not yet been implemented.";
+		return 0;
+	}
 	
 	output(&gates);
 }
