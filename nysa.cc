@@ -109,7 +109,7 @@ namespace  {
         else if(name == "NOR")
             return NOR_f;
         else
-            cerr << "Błąd wykonania w f. get_correct_gate_pointer" << endl;
+            cerr << "Błąd wykonania w f. get_correct_gate_pointer, otrzymana nazwa to " << name << endl;
 
         return nullptr;
 	}
@@ -145,12 +145,13 @@ namespace  {
 
                 auto gate_name_iter = std::sregex_iterator(line.begin(), line.end(), name_g);
                 std::smatch match = *gate_name_iter; //match z nazwą bramki
+                string name_gate = match.str();
 
                 line = regex_replace(line, name_g, "");
                 istringstream iss(line);
                 while(iss >> data) {
                     if(first) {
-                        if(output_set.empty() || output_set.find(data) != output_set.end()) {
+                        if(output_set.empty() || output_set.find(data) == output_set.end()) {
                             output_set.insert(data);
                         }
                         else {
@@ -165,7 +166,7 @@ namespace  {
                         in.push_back(data);
                     }
                 }
-                add_gate(in, out, match.str(), gates);
+                add_gate(in, out, name_gate, gates);
 
             }
             else {
@@ -326,9 +327,7 @@ namespace  {
 			if(it->second == 1) {
 				only_inputs.push_back(it->first);
 			}
-			if(it->second == 2) {
-				only_outputs.push_back(it->first);
-			}
+			only_outputs.push_back(it->first);
 		}
 		
 		sort(only_inputs.begin(), only_inputs.end());
