@@ -1,13 +1,12 @@
 #include<unordered_map>
 #include<vector>
 #include<queue>
-#include<vector>
 #include<set>
 #include<string>
 #include<regex>
 #include<istream>
 #include<iostream>
-#include<assert.h>
+#include<cassert>
 
 using std::queue;
 using std::unordered_map;
@@ -27,14 +26,14 @@ using std::cerr;
 
 using signal_t = int32_t;
 using states_map = unordered_map<signal_t, bool>;
-using gate = pair< 
-	void (*)(pair<signal_t, vector<signal_t> >, states_map*), 
+using gate = pair<
+	void (*)(pair<signal_t, vector<signal_t> >, states_map*),
 	pair<signal_t, vector<signal_t> > 
 	>;
-
+typedef void (*GATE_f)(pair<signal_t, vector<signal_t> > out_in, states_map* states);
 
 namespace  {
-	void AND_f(pair<signal_t, vector<signal_t> > out_in, 
+	void AND_f(const pair<signal_t, vector<signal_t> > out_in,
 		states_map *states) {
 	    assert(out_in.second.size() >= 2);
 		bool output_state = true;
@@ -44,7 +43,7 @@ namespace  {
 		(*states)[out_in.first] = output_state;
 	}
 
-    void NAND_f(pair<signal_t, vector<signal_t> > out_in,
+    void NAND_f(const pair<signal_t, vector<signal_t> > out_in,
                states_map *states) {
         assert(out_in.second.size() >= 2);
         bool output_state = true;
@@ -54,7 +53,7 @@ namespace  {
         (*states)[out_in.first] = !output_state;
     }
 
-    void OR_f(pair<signal_t, vector<signal_t> > out_in,
+    void OR_f(const pair<signal_t, vector<signal_t> > out_in,
                 states_map *states) {
         assert(out_in.second.size() >= 2);
         bool output_state = true;
@@ -64,7 +63,7 @@ namespace  {
         (*states)[out_in.first] = output_state;
     }
 
-    void XOR_f(pair<signal_t, vector<signal_t> > out_in,
+    void XOR_f(const pair<signal_t, vector<signal_t> > out_in,
                 states_map *states) {
         assert(out_in.second.size() == 2);
         bool output_state;
@@ -76,7 +75,7 @@ namespace  {
         (*states)[out_in.first] = output_state;
     }
 
-    void NOT_f(pair<signal_t, vector<signal_t> > out_in,
+    void NOT_f(const pair<signal_t, vector<signal_t> > out_in,
                 states_map *states) {
         assert(out_in.second.size() == 1);
         bool output_state = true;
@@ -86,7 +85,7 @@ namespace  {
         (*states)[out_in.first] = output_state;
     }
 
-    void NOR_f(pair<signal_t, vector<signal_t> > out_in,
+    void NOR_f(const pair<signal_t, vector<signal_t> > out_in,
                 states_map *states) {
         assert(out_in.second.size() >= 2);
         bool output_state = true;
@@ -95,8 +94,34 @@ namespace  {
         }
         (*states)[out_in.first] = !output_state;
     }
-	
-	void read_input(vector<gate> const *gates) {
+
+    GATE_f get_correct_gate_pointer(string &name){
+	    if(name == "AND")
+            return AND_f;
+        else if(name == "NAND")
+            return NAND_f;
+        else if(name == "OR")
+            return OR_f;
+        else if(name == "XOR")
+            return XOR_f;
+        else if(name == "NOT")
+            return NOT_f;
+        else if(name == "NOR")
+            return NOR_f;
+        else
+            cerr << "Błąd wykonania w f. get_correct_gate_pointer" << endl;
+
+        return nullptr;
+	}
+
+	void add_gate(vector<signal_t> in, signal_t out, string gate_name, vector<gate> *gates){
+	    pair<signal_t, vector<signal_t> > signals (out, in);
+        pair<void (*)(pair<signal_t, vector<signal_t> >, states_map*), pair<signal_t, vector<signal_t> > >
+                gate_a (get_correct_gate_pointer(gate_name), signals);
+        gates->push_back(gate_a);
+	}
+
+	bool read_input(vector<gate> *gates) {
 
 	    regex not_g("^\\s*NOT(\\s+\\d{1,9}){2}\\s*$");
 	    regex xor_g("^\\s*XOR(\\s+\\d{1,9}){3}\\s*$");
@@ -104,32 +129,26 @@ namespace  {
 	    regex numbers("\\b(\\s+\\d+)+$");
 	    regex name_g("(AND|NAND|OR|XOR|NOT|NOR)");
 
-	    bool reading_input = true, first = true, no_error = true;
+	    bool first = true, no_error = true;
 	    int no_line = 1;
+        string line;
         set<signal_t> output_set;
 
-	    while(reading_input) {
-            string line;
-            getline(cin, line);
+	    while(getline(cin, line)) {
             vector<signal_t> in;
-
+            signal_t out;
             int data;
 
-            if(line.size() == 0) {
-                cout << "Nic tu nie ma" << endl;
-                //gdy nie ma nic na wejściu
-            }
-            else if(regex_match(line, not_g) ||
-                    regex_match(line, xor_g) ||
-                    regex_match(line, rest_g)) {
+            if( regex_match(line, not_g) ||
+                regex_match(line, xor_g) ||
+                regex_match(line, rest_g)) {
 
                 auto gate_name_iter = std::sregex_iterator(line.begin(), line.end(), name_g);
-                std::smatch match = *gate_name_iter;
-                cout << match.str() << endl;
+                std::smatch match = *gate_name_iter; //match z nazwą bramki
 
                 line = regex_replace(line, name_g, "");
                 istringstream iss(line);
-                while(iss >> data){
+                while(iss >> data) {
                     if(first) {
                         if(output_set.empty() || output_set.find(data) != output_set.end()) {
                             output_set.insert(data);
@@ -139,21 +158,35 @@ namespace  {
                             << data << " is assigned to multiple outputs.";
                             no_error = false;
                         }
-                        signal_t out = data;
+                        out = data;
                         first = false;
                     }
                     else {
                         in.push_back(data);
                     }
                 }
+                add_gate(in, out, match.str(), gates);
+
             }
-            else{
+            else {
                 cerr << "Error in line " << no_line << ": " << line << endl;
                 no_error = false;
             }
 
             no_line++;
             first = true;
+        }
+
+        if (cin.bad()) {
+            cerr << "I/O error" << endl;
+            exit(1);
+        }
+        else if (!cin.eof()) {
+            cerr << "format error" << endl;
+            exit(1);
+        }
+        else {
+            return no_error;
         }
 	}
 	
@@ -313,9 +346,11 @@ namespace  {
 }
 
 int main() {
+    bool no_error = true;
+
 	vector<gate> gates;
 	
-	read_input(&gates);
+	no_error = read_input(&gates);
 	
 	if(check_for_sequential_logic(&gates)) {
 		cerr << "Error: sequential logic analysis has not yet been implemented.";
