@@ -145,13 +145,13 @@ namespace  {
 
                 auto gate_name_iter = std::sregex_iterator(line.begin(), line.end(), name_g);
                 std::smatch match = *gate_name_iter; //match z nazwą bramki
-                String gate_name = match.str();
+                string gate_name = match.str();
 
                 line = regex_replace(line, name_g, "");
                 istringstream iss(line);
                 while(iss >> data) {
                     if(first) {
-                        if(output_set.empty() || output_set.find(data) != output_set.end()) {
+                        if(output_set.empty() || output_set.find(data) == output_set.end()) {
                             output_set.insert(data);
                         }
                         else {
