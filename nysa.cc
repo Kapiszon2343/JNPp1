@@ -234,9 +234,9 @@ namespace  {
 		}
 
 		for(signal_t output : *outputs) {
-			printf("%d", (*states)[output]);
+			cout << (*states)[output];
 		}
-		printf("\n");
+		cout << endl;
 	}
 	
 	void output_step(
@@ -317,7 +317,10 @@ int main() {
 	
 	read_input(&gates);
 	
-	check_for_sequential_logic(&gates);
-	
-	output(&gates);
+	if(check_for_sequential_logic(&gates)) {
+		cerr << "Error: sequential logic analysis has not yet been implemented.";
+	}
+	else {
+		output(&gates);
+	}
 }
