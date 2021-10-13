@@ -138,6 +138,7 @@ namespace  {
             vector<signal_t> in;
             signal_t out;
             int data;
+            bool zero_signal = false;
 
             if( regex_match(line, not_g) ||
                 regex_match(line, xor_g) ||
@@ -147,9 +148,12 @@ namespace  {
                 std::smatch match = *gate_name_iter; //match z nazwą bramki
                 string name_gate = match.str();
 
-                line = regex_replace(line, name_g, "");
-                istringstream iss(line);
-                while(iss >> data) {
+                string num_line = regex_replace(line, name_g, "");
+                istringstream iss(num_line);
+                while(!zero_signal && iss >> data) {
+                    if(data == 0){
+                        zero_signal = true;
+                    }
                     if(first) {
                         if(output_set.empty() || output_set.find(data) == output_set.end()) {
                             output_set.insert(data);
@@ -166,7 +170,13 @@ namespace  {
                         in.push_back(data);
                     }
                 }
-                add_gate(in, out, name_gate, gates);
+                if(zero_signal){
+                    cerr << "Error in line " << no_line << ": " << line << endl;
+                    no_error = false;
+                }
+                else{
+                    add_gate(in, out, name_gate, gates);
+                }
 
             }
             else {
@@ -352,7 +362,7 @@ int main() {
 	}
 	
 	if(!check_for_sequential_logic(&gates)) {
-		cerr << "Error: sequential logic analysis has not yet been implemented.";
+		cerr << "Error: sequential logic analysis has not yet been implemented." << endl;
 		return 0;
 	}
 	
