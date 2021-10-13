@@ -224,16 +224,16 @@ namespace  {
 			}
 		}
 		
-		bool sequential_logic = false;
+		bool no_error = true;
 		
 		for(int nr_of_uncheked_inputs : waiting_for_inputs) {
 			if(nr_of_uncheked_inputs > 0) {
-				sequential_logic = true;
+				no_error = false;
 				break;
 			}
 		}
 		
-		return sequential_logic;
+		return no_error;
 	}
 	
 	void calculate_single_output(
@@ -346,16 +346,16 @@ namespace  {
 }
 
 int main() {
-    bool no_error = true;
-
 	vector<gate> gates;
 	
-	no_error = read_input(&gates);
+	if(!read_input(&gates)) {
+		return 0;
+	}
 	
-	if(check_for_sequential_logic(&gates)) {
+	if(!check_for_sequential_logic(&gates)) {
 		cerr << "Error: sequential logic analysis has not yet been implemented.";
+		return 0;
 	}
-	else {
-		output(&gates);
-	}
+	
+	output(&gates);
 }
