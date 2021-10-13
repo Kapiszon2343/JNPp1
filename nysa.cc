@@ -109,7 +109,7 @@ namespace  {
         else if(name == "NOR")
             return NOR_f;
         else
-            cerr << "Błąd wykonania w f. get_correct_gate_pointer" << endl;
+            cerr << "Błąd wykonania w f. get_correct_gate_pointer, otrzymana nazwa to " << name << endl;
 
         return nullptr;
 	}
@@ -145,7 +145,7 @@ namespace  {
 
                 auto gate_name_iter = std::sregex_iterator(line.begin(), line.end(), name_g);
                 std::smatch match = *gate_name_iter; //match z nazwą bramki
-                string gate_name = match.str();
+                string name_gate = match.str();
 
                 line = regex_replace(line, name_g, "");
                 istringstream iss(line);
@@ -156,7 +156,7 @@ namespace  {
                         }
                         else {
                             cerr << "Error in line " << no_line << ": signal "
-                            << data << " is assigned to multiple outputs.";
+                            << data << " is assigned to multiple outputs." << endl;
                             no_error = false;
                         }
                         out = data;
@@ -166,7 +166,7 @@ namespace  {
                         in.push_back(data);
                     }
                 }
-                add_gate(in, out, gate_name, gates);
+                add_gate(in, out, name_gate, gates);
 
             }
             else {
@@ -225,16 +225,16 @@ namespace  {
 			}
 		}
 		
-		bool sequential_logic = false;
+		bool no_error = true;
 		
 		for(int nr_of_uncheked_inputs : waiting_for_inputs) {
 			if(nr_of_uncheked_inputs > 0) {
-				sequential_logic = true;
+				no_error = false;
 				break;
 			}
 		}
 		
-		return sequential_logic;
+		return no_error;
 	}
 	
 	void calculate_single_output(
@@ -268,9 +268,9 @@ namespace  {
 		}
 
 		for(signal_t output : *outputs) {
-			printf("%d", (*states)[output]);
+			cout << (*states)[output];
 		}
-		printf("\n");
+		cout << endl;
 	}
 	
 	void output_step(
@@ -327,9 +327,7 @@ namespace  {
 			if(it->second == 1) {
 				only_inputs.push_back(it->first);
 			}
-			if(it->second == 2) {
-				only_outputs.push_back(it->first);
-			}
+			only_outputs.push_back(it->first);
 		}
 		
 		sort(only_inputs.begin(), only_inputs.end());
@@ -347,13 +345,16 @@ namespace  {
 }
 
 int main() {
-    bool no_error = true;
-
 	vector<gate> gates;
 	
-	no_error = read_input(&gates);
+	if(!read_input(&gates)) {
+		return 0;
+	}
 	
-	check_for_sequential_logic(&gates);
+	if(!check_for_sequential_logic(&gates)) {
+		cerr << "Error: sequential logic analysis has not yet been implemented.";
+		return 0;
+	}
 	
 	output(&gates);
 }
