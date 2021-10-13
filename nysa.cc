@@ -145,6 +145,7 @@ namespace  {
 
                 auto gate_name_iter = std::sregex_iterator(line.begin(), line.end(), name_g);
                 std::smatch match = *gate_name_iter; //match z nazwą bramki
+                String gate_name = match.str();
 
                 line = regex_replace(line, name_g, "");
                 istringstream iss(line);
@@ -165,7 +166,7 @@ namespace  {
                         in.push_back(data);
                     }
                 }
-                add_gate(in, out, match.str(), gates);
+                add_gate(in, out, gate_name, gates);
 
             }
             else {
