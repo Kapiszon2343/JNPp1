@@ -56,7 +56,7 @@ namespace  {
     void OR_f(const pair<signal_t, vector<signal_t> > out_in,
                 states_map *states) {
         assert(out_in.second.size() >= 2);
-        bool output_state = true;
+        bool output_state = false;
         for(auto in_id : out_in.second) {
             output_state |= (*states)[in_id];
         }
